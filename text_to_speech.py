@@ -1,10 +1,12 @@
 import os
 
-# Check if running on Render (cloud)
 if os.getenv("RENDER") == "true":
+    print("[Render Mode]: Skipping pyttsx3 import")
+
     def speak(text):
-        print(f"[Render Mode]: Skipping TTS — Render has no audio")
+        print(f"[Render Mode]: {text}")
 else:
+    print("[Local Mode]: Using pyttsx3")
     import pyttsx3
 
     def speak(text):
