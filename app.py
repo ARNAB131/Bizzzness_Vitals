@@ -18,29 +18,49 @@ else:
     st.success("✅ Model Loaded Successfully!")
     model = joblib.load(model_path)
 
-# ✅ Example interface after model loaded
+# ✅ Define the expected feature columns used during model training
+VALID_FEATURES = ['heart_rate', 'bp_systolic', 'bp_diastolic', 'oxygen_saturation', 'temperature']  # replace with your actual features
+
 st.header("📄 Patient Vitals Predictor")
 
-uploaded_file = st.file_uploader("📁 Upload Patient Data CSV", type=["csv"])
+uploaded_file = st.file_uploader("📁 Upload Patient Data (CSV or Excel)", type=["csv", "xlsx"])
 
 if uploaded_file is not None:
+    filename = uploaded_file.name
     try:
-        # ✅ First try UTF-8
-        df = pd.read_csv(uploaded_file, encoding='utf-8')
-    except UnicodeDecodeError:
-        # ✅ Fallback to Windows-safe encoding
-        df = pd.read_csv(uploaded_file, encoding='ISO-8859-1')
+        # ✅ Handle both CSV and Excel
+        if filename.endswith(".csv"):
+            try:
+                df = pd.read_csv(uploaded_file, encoding='utf-8')
+            except UnicodeDecodeError:
+                df = pd.read_csv(uploaded_file, encoding='ISO-8859-1')
+        elif filename.endswith(".xlsx"):
+            df = pd.read_excel(uploaded_file)
+        else:
+            st.error("❌ Unsupported file format!")
+            st.stop()
 
-    st.success("✅ File uploaded and read successfully!")
-    st.dataframe(df)
+        st.success("✅ File uploaded successfully!")
+        st.dataframe(df)
 
-    if st.button("🔮 Predict"):
-        try:
-            prediction = model.predict(df)
-            st.success("✅ Prediction Complete!")
-            st.write("Prediction Output:", prediction)
-        except Exception as e:
-            st.error(f"❌ Prediction failed: {e}")
+        # ✅ Filter valid columns
+        missing_cols = [col for col in VALID_FEATURES if col not in df.columns]
+        if missing_cols:
+            st.error(f"❌ Missing required columns: {missing_cols}")
+            st.stop()
 
+        df_filtered = df[VALID_FEATURES]
+        st.info("✅ Data filtered and ready for prediction.")
+        st.dataframe(df_filtered)
+
+        if st.button("🔮 Predict"):
+            try:
+                prediction = model.predict(df_filtered)
+                st.success("✅ Prediction Complete!")
+                st.write("Prediction Output:", prediction)
+            except Exception as e:
+                st.error(f"❌ Prediction failed: {e}")
+    except Exception as e:
+        st.error(f"❌ Error reading file: {e}")
 else:
-    st.info("📄 Please upload a patient data CSV to start predictions.")
+    st.info("📄 Please upload a patient data CSV or Excel file to start predictions.")
