@@ -19,19 +19,28 @@ else:
     model = joblib.load(model_path)
 
 # ✅ Example interface after model loaded
-st.header("Patient Vitals Predictor Example")
+st.header("📄 Patient Vitals Predictor")
 
-uploaded_file = st.file_uploader("Upload Patient Data CSV (optional):")
+uploaded_file = st.file_uploader("📁 Upload Patient Data CSV", type=["csv"])
 
 if uploaded_file is not None:
-    df = pd.read_csv(uploaded_file)
-    st.write("Uploaded Data:", df)
+    try:
+        # ✅ First try UTF-8
+        df = pd.read_csv(uploaded_file, encoding='utf-8')
+    except UnicodeDecodeError:
+        # ✅ Fallback to Windows-safe encoding
+        df = pd.read_csv(uploaded_file, encoding='ISO-8859-1')
 
-    if st.button("Predict"):
-        prediction = model.predict(df)
-        st.success("✅ Prediction Complete")
-        st.write("Prediction Output:", prediction)
+    st.success("✅ File uploaded and read successfully!")
+    st.dataframe(df)
+
+    if st.button("🔮 Predict"):
+        try:
+            prediction = model.predict(df)
+            st.success("✅ Prediction Complete!")
+            st.write("Prediction Output:", prediction)
+        except Exception as e:
+            st.error(f"❌ Prediction failed: {e}")
 
 else:
-    st.info("📄 Please upload a patient data CSV to predict.")
-
+    st.info("📄 Please upload a patient data CSV to start predictions.")
