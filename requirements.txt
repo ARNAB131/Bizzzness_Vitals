@@ -1,4 +1,5 @@
 streamlit==1.46.1
-pandas
+pandas>=2.0.0
 scikit-learn==1.6.1
 matplotlib==3.10.3
+joblib
