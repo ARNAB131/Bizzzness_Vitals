@@ -96,14 +96,15 @@ st.header("📧 Send Email Alert")
 
 doctor_email = st.text_input("Enter Doctor's Email:")
 patient_email = st.text_input("Enter Patient's Email:")
-alert_message = st.text_area("Enter Alert Message (for critical vitals or updates):")
+subject = st.text_input("Enter Email Subject:")
+message = st.text_area("Enter Message (Symptoms, Notes, etc.):")
 
 if st.button("🚨 Send Email Alert"):
-    if doctor_email and patient_email and alert_message:
+    if doctor_email and patient_email and subject and message:
         try:
-            send_email_alert(doctor_email, patient_email, alert_message)
-            st.success(f"✅ Email alert sent to Doctor ({doctor_email}) and Patient ({patient_email})!")
+            send_email_alert(doctor_email, patient_email, subject, message)
+            st.success(f"✅ Email sent to Doctor ({doctor_email}) and Patient ({patient_email})!")
         except Exception as e:
             st.error(f"❌ Failed to send email: {e}")
     else:
-        st.warning("⚠️ Please fill in all email fields and alert message.")
+        st.warning("⚠️ Please fill in Doctor Email, Patient Email, Subject, and Message.")
