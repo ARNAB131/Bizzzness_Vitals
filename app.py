@@ -4,6 +4,7 @@ import joblib
 import os
 from slot_booking import suggest_slots, book_slot
 from text_to_speech import speak
+from utils.email_alert import send_email_alert  # ✅ Added for email alerts
 
 st.set_page_config(page_title="Bizzzness Vitals Dashboard", layout="wide")
 
@@ -89,3 +90,20 @@ if uploaded_file:
         st.error(f"❌ File reading error: {e}")
 else:
     st.info("📁 Upload patient data file to predict.")
+
+# ✅ 📧 EMAIL ALERT SECTION
+st.header("📧 Send Email Alert")
+
+doctor_email = st.text_input("Enter Doctor's Email:")
+patient_email = st.text_input("Enter Patient's Email:")
+alert_message = st.text_area("Enter Alert Message (for critical vitals or updates):")
+
+if st.button("🚨 Send Email Alert"):
+    if doctor_email and patient_email and alert_message:
+        try:
+            send_email_alert(doctor_email, patient_email, alert_message)
+            st.success(f"✅ Email alert sent to Doctor ({doctor_email}) and Patient ({patient_email})!")
+        except Exception as e:
+            st.error(f"❌ Failed to send email: {e}")
+    else:
+        st.warning("⚠️ Please fill in all email fields and alert message.")
